@@ -1,17 +1,28 @@
-import {useState, useEffect} from 'react'
+import {useState, useEffect, useRef} from 'react'
 import {connect} from 'react-redux'
 import './App.css'
 
 function App(props) {
   const [input, setInput] = useState("")
-  const [log, setLog] = useState("")
+  const inputRef = useRef(null)
   useEffect(() => {
   })
 
-  const onHandleClick = () => {
+  const onInputKeyPress = (e) => {
+    if (e.key === "Enter") {
+        onAddClick(e);
+    }
+  }
+  const onAddClick = (e) => {
+    if (input === "") {
+      alert("need to write todo");
+      return;
+    }
     const _todo = [...props.todo, input]
     props.addTodo(_todo)
     setInput("")
+
+    inputRef.current.focus()
   }
 
   const onClearClick = () => {
@@ -20,11 +31,9 @@ function App(props) {
   }
   
   const onRemoveClick = (e) => {
-    setLog(e.target.className)
-
     if (e.target.nodeName === "INPUT" ) {
       const _todo = props.todo.filter((value, index) => {
-        return index != (e.target.dataset.index)
+        return index !== (Number(e.target.dataset.index))
       })
       props.addTodo(_todo)
     }
@@ -40,8 +49,8 @@ function App(props) {
     <div className="App">
       <h1>Todo List</h1>
       <div className="input-form">
-        <input type="input" value={input} onChange={(e) => onHandleInputChange(e)}/>
-        <input type="button" value="add" onClick={onHandleClick}/>
+        <input ref={inputRef} type="input" onKeyPress={(e) => onInputKeyPress(e) } value={input} onChange={(e) => onHandleInputChange(e)}/>
+        <input type="button" value="add"  onClick={(e) => onAddClick(e)}/>
       </div>
       <div>
         <input type="button" value="clear" onClick={(e) => onClearClick(e)}/>
@@ -55,9 +64,6 @@ function App(props) {
             </li>
         ))}
         </ul>
-      </div>
-      <div>
-        {log}
       </div>
     </div>
   );
